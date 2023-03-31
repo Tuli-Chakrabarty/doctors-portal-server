@@ -1,20 +1,20 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const MongoClient = require('mongodb').MongoClient;
-require('dotenv').config()
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const MongoClient = require("mongodb").MongoClient;
+require("dotenv").config();
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ou6cn.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
-
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.n2l1r02.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
+// mongosh "mongodb+srv://cluster0.n2l1r02.mongodb.net/myFirstDatabase" --apiVersion 1 --username doctorSania
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const port=5000;
+const port = 8080;
 
-app.get('/', (req,res) =>{
-    res.send("hello from db it's working ")
-})
+app.get("/", (req, res) => {
+  res.send("hello from db it's working ");
+});
 
 // MongoClient.connect(url, function(err, db) {
 //   if (err) throw err;
@@ -26,27 +26,53 @@ app.get('/', (req,res) =>{
 //     db.close();
 //   });
 // });
-let db ;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-client.connect(err => {
-  const appointmentCollection = client.db("PrismaCenter").collection("appointments");
-  // const teachersCollection = client.db("teachersInfo").collection("teacher");
-  // const contactCollection = client.db("ConactInfo").collection("contact");
-  // const classCollection = client.db("ClassInformation").collection("AddClass");
-  
-  app.post('/addAppointment', (req,res) =>{
-
-   const appointment = req.body;
-    appointmentCollection.insertOne(appointment)
-        .then(result => {
-            res.send(result.insertedCount > 0);
-        });
-   
-    console.log(appointment);
-
-  })
-
- console.log('Got it');
+let db;
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
-  
-app.listen(port)
+async function run() {
+  const appointmentCollection = client
+    .db("PrismaCenter")
+    .collection("appointments");
+  const userCollection = client.db("PrismaCenter").collection("users");
+
+  app.post("/addAppointment", (req, res) => {
+    console.log("Got it");
+    const appointment = req.body;
+    appointmentCollection.insertOne(appointment).then((result) => {
+      res.send(result.insertedCount > 0);
+    });
+  });
+  app.post("/addUser", (req, res) => {
+    console.log("Got it");
+    const userData = req.body;
+    console.log(userData, "Got it");
+    userCollection.insertOne(req.body).then((result) => {
+      res.send(result);
+    });
+  });
+}
+run().catch(console.log);
+// client.connect((err) => {
+
+//   console.log("Got it");
+// });
+
+// app.post("/addAppointment", (req, res) => {
+//   console.log("Got it");
+//   const appointment = req.body;
+//   appointmentCollection.insertOne(appointment).then((result) => {
+//     res.send(result.insertedCount > 0);
+//   });
+// });
+// app.post("/add", (req, res) => {
+//   const appointment = req.body;
+//   appointmentCollection.insertOne(appointment).then((result) => {
+//     res.send(result.insertedCount > 0);
+//   });
+
+//   console.log(appointment);
+// });
+
+app.listen(port);
