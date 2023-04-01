@@ -48,9 +48,21 @@ async function run() {
     console.log("Got it");
     const userData = req.body;
     console.log(userData, "Got it");
-    userCollection.insertOne(req.body).then((result) => {
-      res.send(result);
-    });
+    const email=req.body.email;
+    const isAlready=userCollection.find({email:email})
+    if(isAlready) {
+         res.send({
+        isAlready:true,
+        message:"User already exists"
+         });
+    }
+    else {
+           userCollection.insertOne(req.body).then((result) => {
+           res.send({isAlready:false,data:result,message:'User was created successfully'});
+           });
+    }
+
+   
   });
 }
 run().catch(console.log);
