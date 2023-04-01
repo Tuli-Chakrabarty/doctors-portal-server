@@ -44,25 +44,28 @@ async function run() {
       res.send(result.insertedCount > 0);
     });
   });
-  app.post("/addUser", (req, res) => {
+  app.post("/addUser", async (req, res) => {
     console.log("Got it");
     const userData = req.body;
-    console.log(userData, "Got it");
-    const email=req.body.email;
-    const isAlready=userCollection.find({email:email})
-    if(isAlready) {
-         res.send({
-        isAlready:true,
-        message:"User already exists"
-         });
-    }
-    else {
-           userCollection.insertOne(req.body).then((result) => {
-           res.send({isAlready:false,data:result,message:'User was created successfully'});
-           });
-    }
 
-   
+    const email = req.body.email;
+    console.log(email, "Got it email");
+    const isAlready = await userCollection.findOne({ email: email });
+    console.log(isAlready, "Got it email");
+    if (isAlready) {
+      res.send({
+        isAlready: true,
+        message: "User already exists",
+      });
+    } else {
+      userCollection.insertOne(req.body).then((result) => {
+        res.send({
+          isAlready: false,
+          data: result,
+          message: "User was created successfully",
+        });
+      });
+    }
   });
 }
 run().catch(console.log);
